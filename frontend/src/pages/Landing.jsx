@@ -528,7 +528,7 @@ footer{padding:46px 0 60px;border-top:1px solid var(--hair);margin-top:110px;pos
       {/* ======================= NAV ======================= */}
       <header className="nav">
         <div className="wrap nav-in">
-          <div className="mark"><svg className="logo" viewBox="0 0 28 28" fill="none" aria-hidden="true"><rect x="1" y="1" width="26" height="26" rx="8" fill="rgba(95,208,190,.055)" stroke="rgba(178,208,212,.22)"/><path d="M7.4 18.9a8.2 8.2 0 1 1 13.2 0" stroke="#5FD0BE" strokeWidth="1.5" strokeLinecap="round"/><path d="M5.9 15.1 7.6 15.5M14 6.1v1.8M22.1 15.1 20.4 15.5" stroke="rgba(178,208,212,.45)" strokeWidth="1.2" strokeLinecap="round"/><path d="M14 15.4 18.9 9.2" stroke="#F2A93B" strokeWidth="1.8" strokeLinecap="round"/><circle cx="14" cy="15.6" r="1.7" fill="#0B1113" stroke="#EAF1F1" strokeWidth="1.3"/></svg>U<i>/</i>BILL <small>Utility billing management</small></div>
+          <div className="mark"><svg className="logo" viewBox="0 0 28 28" fill="none" aria-hidden="true"><rect x="1" y="1" width="26" height="26" rx="8" fill="rgba(95,208,190,.055)" stroke="rgba(178,208,212,.22)"/><path d="M7.4 18.9a8.2 8.2 0 1 1 13.2 0" stroke="#5FD0BE" strokeWidth="1.5" strokeLinecap="round"/><path d="M5.9 15.1 7.6 15.5M14 6.1v1.8M22.1 15.1 20.4 15.5" stroke="rgba(178,208,212,.45)" strokeWidth="1.2" strokeLinecap="round"/><path d="M14 15.4 18.9 9.2" stroke="#F2A93B" strokeWidth="1.8" strokeLinecap="round"/><circle cx="14" cy="15.6" r="1.7" fill="#0B1113" stroke="#EAF1F1" strokeWidth="1.3"/></svg>GridFlow <small>Smart utility management</small></div>
           <nav className="nav-links">
   <a href="#lifecycle">Lifecycle</a>
   <a href="#console">Console</a>
@@ -574,7 +574,7 @@ footer{padding:46px 0 60px;border-top:1px solid var(--hair);margin-top:110px;pos
               </button>
               <a className="btn" href="#console">Explore platform</a>
             </div>
-            <div className="meta"><span>MYSQL</span><span>REST API</span><span>REACT</span></div>
+            <div className="meta"><span>TIMESCALED</span><span>SPRING BOOT · JDBC</span><span>REACT</span></div>
           </div>
 
           <div className="scene">
