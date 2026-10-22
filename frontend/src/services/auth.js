@@ -36,7 +36,7 @@ export async function login(username, password, role) {
             role: backendUser.role.toLowerCase(),
             name:
                 backendUser.role === "ADMIN"
-                    ? "U/BILL Administrator"
+                    ? "GridFlow Administrator"
                     : backendUser.username,
         };
 
