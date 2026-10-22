@@ -113,21 +113,68 @@ export default function OperationsHub() {
     }), []);
 
     const load = async () => {
-        setLoading(true); setError("");
+        setLoading(true);
+        setError("");
+
         try {
-            const entries = await Promise.all(
+            const results = await Promise.all(
                 Object.entries(loaders).map(async ([key, fn]) => {
-                    try { return [key, arr(await fn())]; }
-                    catch { return [key, []]; }
+                    try {
+                        return {
+                            key,
+                            rows: arr(await fn()),
+                            failed: false,
+                        };
+                    } catch (requestError) {
+                        console.error(
+                            `GridFlow: failed to load ${key}`,
+                            requestError
+                        );
+
+                        return {
+                            key,
+                            rows: [],
+                            failed: true,
+                        };
+                    }
                 })
             );
-            setData(Object.fromEntries(entries));
-        } catch (e) {
-            setError(e.message || "Unable to load operations data.");
-        } finally { setLoading(false); }
-    };
 
-    useEffect(() => { load(); }, []);
+            setData(
+                Object.fromEntries(
+                    results.map(({ key, rows }) => [key, rows])
+                )
+            );
+
+            const failedKeys = results
+                .filter((result) => result.failed)
+                .map((result) => result.key);
+
+            if (failedKeys.length > 0) {
+                const shown = failedKeys.slice(0, 4).join(", ");
+                const remaining = failedKeys.length - 4;
+                const suffix = remaining > 0
+                    ? `, and ${remaining} more`
+                    : "";
+
+                setError(
+                    "Some live data could not be loaded. Failed resources: " +
+                    `${shown}${suffix}. The backend may be unavailable. ` +
+                    "Check the connection and select Refresh to retry."
+                );
+            }
+        } catch (requestError) {
+            console.error(
+                "GridFlow: unable to load operations data",
+                requestError
+            );
+            setError(
+                requestError?.message || "Unable to load operations data."
+            );
+        } finally {
+            setLoading(false);
+        }
+    };
 
     const d = data;
     const q = search.trim().toLowerCase();
