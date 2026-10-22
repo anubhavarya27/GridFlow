@@ -1,0 +1,6 @@
+.env
+.env.*
+!.env.example
+**/target/
+**/.mvn/wrapper/maven-wrapper.jar
+backend-temp/
