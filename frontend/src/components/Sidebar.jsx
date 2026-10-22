@@ -162,7 +162,7 @@ function Sidebar() {
 
                 <div>
                     <strong>
-                        U/BILL
+                        GridFlow
                     </strong>
 
                     <span>
@@ -307,8 +307,8 @@ function Sidebar() {
 
                 <span>
                     {admin
-                        ? "ADMIN · U/BILL"
-                        : "USER · U/BILL"}
+                        ? "ADMIN · GridFlow"
+                        : "USER · GridFlow"}
                 </span>
 
             </div>

@@ -1,4 +1,4 @@
-import { getAuthToken } from "./auth";
+import { getAuthToken, getApprovalToken } from "./auth";
 import { API_BASE_URL } from "./config";
 
 
@@ -288,18 +288,31 @@ export const getQueryRequest = (id) =>
     apiRequest(`/query/requests/${id}`);
 
 
+
 /* =========================================================
    ADMIN QUERY APPROVAL
    ========================================================= */
 
+const getApprovalHeaders = () => {
+    const approvalToken = getApprovalToken();
+
+    return approvalToken
+        ? {
+              "X-Approval-Token": approvalToken,
+          }
+        : {};
+};
+
 export const approveQueryRequest = (id) =>
     apiRequest(`/query/requests/${id}/approve`, {
         method: "POST",
+        headers: getApprovalHeaders(),
     });
 
 export const rejectQueryRequest = (id, rejectionReason) =>
     apiRequest(`/query/requests/${id}/reject`, {
         method: "POST",
+        headers: getApprovalHeaders(),
         body: JSON.stringify({
             rejectionReason,
         }),

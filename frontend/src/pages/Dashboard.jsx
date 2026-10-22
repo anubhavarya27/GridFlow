@@ -1255,7 +1255,7 @@ function exportDashboard(
 ) {
     const rows = [
         [
-            "U/BILL DASHBOARD"
+            "GridFlow DASHBOARD"
         ],
 
         [],
@@ -1416,7 +1416,7 @@ function exportDashboard(
     link.href = url;
 
     link.download =
-        `ubill-dashboard-${new Date()
+        `gridflow-dashboard-${new Date()
             .toISOString()
             .slice(0, 10)}.csv`;
 

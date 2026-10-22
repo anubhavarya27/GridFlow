@@ -2,7 +2,7 @@ import React from "react";
 import { Link } from "react-router-dom";
 
 /**
- * U/BILL — Utility data. Under control.
+ * GridFlow — Utility data. Under control.
  * Visual concept sheet for a utility billing management platform
  * (customers, properties, meters, readings, tariffs, bills, payments).
  *
@@ -20,7 +20,7 @@ export default function UBillLandingPage() {
       <style>{`
 @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Sans+Condensed:wght@400;500;600;700&display=swap');
 /* ============================================================
-   U/BILL — visual concept sheet
+   GridFlow — visual concept sheet
    Design tokens
    ============================================================ */
 :root{
@@ -528,7 +528,7 @@ footer{padding:46px 0 60px;border-top:1px solid var(--hair);margin-top:110px;pos
       {/* ======================= NAV ======================= */}
       <header className="nav">
         <div className="wrap nav-in">
-          <div className="mark"><svg className="logo" viewBox="0 0 28 28" fill="none" aria-hidden="true"><rect x="1" y="1" width="26" height="26" rx="8" fill="rgba(95,208,190,.055)" stroke="rgba(178,208,212,.22)"/><path d="M7.4 18.9a8.2 8.2 0 1 1 13.2 0" stroke="#5FD0BE" strokeWidth="1.5" strokeLinecap="round"/><path d="M5.9 15.1 7.6 15.5M14 6.1v1.8M22.1 15.1 20.4 15.5" stroke="rgba(178,208,212,.45)" strokeWidth="1.2" strokeLinecap="round"/><path d="M14 15.4 18.9 9.2" stroke="#F2A93B" strokeWidth="1.8" strokeLinecap="round"/><circle cx="14" cy="15.6" r="1.7" fill="#0B1113" stroke="#EAF1F1" strokeWidth="1.3"/></svg>U<i>/</i>BILL <small>Utility billing management</small></div>
+          <div className="mark"><svg className="logo" viewBox="0 0 28 28" fill="none" aria-hidden="true"><rect x="1" y="1" width="26" height="26" rx="8" fill="rgba(95,208,190,.055)" stroke="rgba(178,208,212,.22)"/><path d="M7.4 18.9a8.2 8.2 0 1 1 13.2 0" stroke="#5FD0BE" strokeWidth="1.5" strokeLinecap="round"/><path d="M5.9 15.1 7.6 15.5M14 6.1v1.8M22.1 15.1 20.4 15.5" stroke="rgba(178,208,212,.45)" strokeWidth="1.2" strokeLinecap="round"/><path d="M14 15.4 18.9 9.2" stroke="#F2A93B" strokeWidth="1.8" strokeLinecap="round"/><circle cx="14" cy="15.6" r="1.7" fill="#0B1113" stroke="#EAF1F1" strokeWidth="1.3"/></svg>GridFlow <small>Smart utility management</small></div>
           <nav className="nav-links">
   <a href="#lifecycle">Lifecycle</a>
   <a href="#console">Console</a>
@@ -574,7 +574,7 @@ footer{padding:46px 0 60px;border-top:1px solid var(--hair);margin-top:110px;pos
               </button>
               <a className="btn" href="#console">Explore platform</a>
             </div>
-            <div className="meta"><span>MYSQL</span><span>REST API</span><span>REACT</span></div>
+            <div className="meta"><span>TIMESCALED</span><span>SPRING BOOT · JDBC</span><span>REACT</span></div>
           </div>
 
           <div className="scene">
@@ -928,7 +928,7 @@ footer{padding:46px 0 60px;border-top:1px solid var(--hair);margin-top:110px;pos
                 <span className="tab off">schema.sql</span>
                 <span className="tab off">+</span>
                 <div className="spacer"></div>
-                <span className="chip">ubill_db@localhost</span>
+                <span className="chip">gridflow_db@localhost</span>
                 <span className="chip on">RUN ⌘↵</span>
               </div>
 
@@ -1232,7 +1232,7 @@ footer{padding:46px 0 60px;border-top:1px solid var(--hair);margin-top:110px;pos
 
       <footer>
         <div className="wrap foot">
-          <span><svg className="logo" viewBox="0 0 28 28" fill="none" aria-hidden="true"><rect x="1" y="1" width="26" height="26" rx="8" fill="rgba(95,208,190,.055)" stroke="rgba(178,208,212,.22)"/><path d="M7.4 18.9a8.2 8.2 0 1 1 13.2 0" stroke="#5FD0BE" strokeWidth="1.5" strokeLinecap="round"/><path d="M5.9 15.1 7.6 15.5M14 6.1v1.8M22.1 15.1 20.4 15.5" stroke="rgba(178,208,212,.45)" strokeWidth="1.2" strokeLinecap="round"/><path d="M14 15.4 18.9 9.2" stroke="#F2A93B" strokeWidth="1.8" strokeLinecap="round"/><circle cx="14" cy="15.6" r="1.7" fill="#0B1113" stroke="#EAF1F1" strokeWidth="1.3"/></svg>U/BILL · UTILITY BILLING MANAGEMENT SYSTEM</span>
+          <span><svg className="logo" viewBox="0 0 28 28" fill="none" aria-hidden="true"><rect x="1" y="1" width="26" height="26" rx="8" fill="rgba(95,208,190,.055)" stroke="rgba(178,208,212,.22)"/><path d="M7.4 18.9a8.2 8.2 0 1 1 13.2 0" stroke="#5FD0BE" strokeWidth="1.5" strokeLinecap="round"/><path d="M5.9 15.1 7.6 15.5M14 6.1v1.8M22.1 15.1 20.4 15.5" stroke="rgba(178,208,212,.45)" strokeWidth="1.2" strokeLinecap="round"/><path d="M14 15.4 18.9 9.2" stroke="#F2A93B" strokeWidth="1.8" strokeLinecap="round"/><circle cx="14" cy="15.6" r="1.7" fill="#0B1113" stroke="#EAF1F1" strokeWidth="1.3"/></svg>GridFlow · UTILITY BILLING MANAGEMENT SYSTEM</span>
           <span>VISUAL CONCEPT SHEET · V1 · SEP 2026</span>
           <span>MYSQL · REST API · REACT</span>
         </div>

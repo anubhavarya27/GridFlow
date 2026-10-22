@@ -53,7 +53,7 @@ function Login() {
                     <div className="login-logo">U</div>
 
                     <div>
-                        <strong>U/BILL</strong>
+                        <strong>GridFlow</strong>
                         <span>UTILITY BILLING SYSTEM</span>
                     </div>
                 </div>
@@ -68,7 +68,7 @@ function Login() {
                         <h1>Sign in</h1>
 
                         <p>
-                            Access the U/BILL utility management
+                            Access the GridFlow utility management
                             console.
                         </p>
                     </div>
@@ -170,14 +170,14 @@ function Login() {
                         <span>CONTROLLED ACCESS</span>
                         <p>
                             Credentials are verified securely
-                            through the U/BILL backend.
+                            through the GridFlow backend.
                         </p>
                     </div>
 
                 </div>
 
                 <div className="login-footer">
-                    <span>U/BILL</span>
+                    <span>GridFlow</span>
                     <span>CONTROLLED DATABASE ACCESS</span>
                 </div>
 
