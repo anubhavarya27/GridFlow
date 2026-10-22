@@ -14,7 +14,11 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
             .authorizeHttpRequests(authorize -> authorize
-                .requestMatchers("/api/health").permitAll()
+                .requestMatchers(
+                    "/api/health",
+                    "/api/auth/login",
+                    "/api/auth/verify-approval"
+                ).permitAll()
                 .anyRequest().authenticated()
             )
             .httpBasic(Customizer.withDefaults())
