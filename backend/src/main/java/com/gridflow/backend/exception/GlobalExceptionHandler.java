@@ -1,4 +1,4 @@
-package com.gridflow.backend.config;
+package com.gridflow.backend.exception;
 
 import com.gridflow.backend.dto.ApiResponse;
 import org.springframework.http.HttpStatus;

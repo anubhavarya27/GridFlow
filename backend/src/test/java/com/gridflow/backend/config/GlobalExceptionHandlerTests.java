@@ -1,5 +1,6 @@
 package com.gridflow.backend.config;
 
+import com.gridflow.backend.exception.GlobalExceptionHandler;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpInputMessage;
 import org.springframework.http.HttpStatus;

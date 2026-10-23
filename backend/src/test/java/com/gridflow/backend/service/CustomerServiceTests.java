@@ -42,4 +42,20 @@ class CustomerServiceTests {
         when(jdbc.queryForList(anyString(), anyInt())).thenReturn(List.of());
         assertNull(service.getCustomerById(999));
     }
+
+    @Test void scopedCustomerListUsesMappedCustomerId() {
+        when(jdbc.queryForList(anyString(), anyInt(), anyInt()))
+                .thenReturn(List.of(Map.of("cust_id", 4)));
+        assertEquals(List.of(Map.of("cust_id", 4)), service.getCustomers(4));
+        verify(jdbc).queryForList(argThat((String sql) ->
+                sql.contains("c.cust_id = ?::integer")), eq(4), eq(4));
+    }
+
+    @Test void scopedCustomerLookupCannotReturnAnotherCustomer() {
+        when(jdbc.queryForList(anyString(), anyInt(), anyInt(), anyInt()))
+                .thenReturn(List.of());
+        assertNull(service.getCustomerById(5, 4));
+        verify(jdbc).queryForList(argThat((String sql) ->
+                sql.contains("c.cust_id = ?::integer")), eq(5), eq(4), eq(4));
+    }
 }

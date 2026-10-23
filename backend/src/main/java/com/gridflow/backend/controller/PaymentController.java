@@ -2,6 +2,7 @@ package com.gridflow.backend.controller;
 
 import com.gridflow.backend.dto.ApiResponse;
 import com.gridflow.backend.service.PaymentService;
+import com.gridflow.backend.security.CustomerScope;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
@@ -18,7 +19,9 @@ public class PaymentController {
 
     @GetMapping
     public ApiResponse<List<Map<String, Object>>> getPayments() {
-        return ApiResponse.success(paymentService.getPayments());
+        return ApiResponse.success(CustomerScope.isAdministrator()
+                ? paymentService.getPayments()
+                : paymentService.getPayments(CustomerScope.currentCustomerId()));
     }
 
     @GetMapping("/bill/{billId}")
@@ -30,6 +33,9 @@ public class PaymentController {
         }
 
         return ResponseEntity.ok(
-                ApiResponse.success(paymentService.getPaymentsByBillId(billId)));
+                ApiResponse.success(CustomerScope.isAdministrator()
+                        ? paymentService.getPaymentsByBillId(billId)
+                        : paymentService.getPaymentsByBillId(
+                                billId, CustomerScope.currentCustomerId())));
     }
 }

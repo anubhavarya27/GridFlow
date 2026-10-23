@@ -18,6 +18,11 @@ public class ProjectedBillService {
     }
 
     public List<Map<String, Object>> getProjectedBills(Integer meterId) {
+        return getProjectedBills(meterId, null);
+    }
+
+    public List<Map<String, Object>> getProjectedBills(
+            Integer meterId, Integer customerId) {
         LocalDate periodStart = LocalDate.now().withDayOfMonth(1);
         LocalDate nextPeriodStart = periodStart.plusMonths(1);
 
@@ -64,6 +69,11 @@ public class ProjectedBillService {
             JOIN tariff t ON t.tariff_code = lt.tariff_code
             WHERE l.current_reading >= b.previous_reading
               AND (CAST(? AS INTEGER) IS NULL OR l.meter_id = CAST(? AS INTEGER))
+              AND (CAST(? AS INTEGER) IS NULL OR EXISTS (
+                  SELECT 1 FROM property_incorporate_meter pm
+                  JOIN customer_owns_property own ON own.property_id = pm.property_id
+                  WHERE pm.meter_id = l.meter_id AND own.cust_id = CAST(? AS INTEGER)
+              ))
             ORDER BY l.meter_id
             """;
 
@@ -75,6 +85,8 @@ public class ProjectedBillService {
                 periodStart,
                 nextPeriodStart,
                 meterId,
-                meterId);
+                meterId,
+                customerId,
+                customerId);
     }
 }

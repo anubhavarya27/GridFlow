@@ -40,4 +40,12 @@ class BillServiceTests {
         when(jdbc.queryForList(anyString(), anyInt())).thenReturn(List.of());
         assertNull(service.getBillById(999));
     }
+
+    @Test void scopesBillByMappedCustomerThroughPropertyOwnership() {
+        when(jdbc.queryForList(anyString(), anyInt())).thenReturn(List.of());
+        assertNull(service.getBillById(999, 7));
+        verify(jdbc).queryForList(argThat((String sql) ->
+                sql.contains("customer_owns_property")
+                        && sql.contains("own.cust_id = ?")), eq(999), eq(7));
+    }
 }

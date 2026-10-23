@@ -4,6 +4,7 @@ package com.gridflow.backend.controller;
 import com.gridflow.backend.config.JwtAuthenticationFilter.GridFlowPrincipal;
 import com.gridflow.backend.dto.ApiResponse;
 import com.gridflow.backend.service.OwnershipService;
+import com.gridflow.backend.security.CustomerScope;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -25,13 +26,9 @@ public class OwnershipController {
 
     @GetMapping
     public ResponseEntity<ApiResponse<?>> getOwnerships() {
-        if (!isAdmin()) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                    .body(ApiResponse.error(
-                            "Administrator access is required to view all ownership records."
-                    ));
-        }
-
+        Integer customerId = CustomerScope.currentCustomerId();
+        if (customerId != null) return ResponseEntity.ok(ApiResponse.success(
+                ownershipService.getOwnershipsByCustomerId(customerId)));
         return ResponseEntity.ok(
                 ApiResponse.success(ownershipService.getOwnerships())
         );
@@ -46,10 +43,11 @@ public class OwnershipController {
                     .body(ApiResponse.error("Customer ID must be positive."));
         }
 
-        if (!isAdmin()) {
+        Integer customerScope = CustomerScope.currentCustomerId();
+        if (customerScope != null && customerScope != customerId) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
                     .body(ApiResponse.error(
-                            "Customer ownership access requires a verified user-to-customer mapping."
+                            "You cannot access another customer's ownership records."
                     ));
         }
 
@@ -59,18 +57,4 @@ public class OwnershipController {
         return ResponseEntity.ok(ApiResponse.success(ownerships));
     }
 
-    private boolean isAdmin() {
-        Authentication authentication =
-                SecurityContextHolder.getContext().getAuthentication();
-
-        if (authentication == null || !authentication.isAuthenticated()) {
-            return false;
-        }
-
-        return authentication.getPrincipal() instanceof GridFlowPrincipal principal
-                && "ADMIN".equals(principal.role())
-                && authentication.getAuthorities().stream()
-                        .anyMatch(authority ->
-                                "ROLE_ADMIN".equals(authority.getAuthority()));
-    }
 }

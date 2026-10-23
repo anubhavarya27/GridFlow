@@ -2,6 +2,7 @@ package com.gridflow.backend.controller;
 
 import com.gridflow.backend.dto.ApiResponse;
 import com.gridflow.backend.service.MeterReadingService;
+import com.gridflow.backend.security.CustomerScope;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,7 +21,9 @@ public class MeterReadingController {
 
     @GetMapping
     public ApiResponse<List<Map<String, Object>>> getReadings() {
-        return ApiResponse.success(meterReadingService.getReadings());
+        return ApiResponse.success(CustomerScope.isAdministrator()
+                ? meterReadingService.getReadings()
+                : meterReadingService.getReadings(CustomerScope.currentCustomerId()));
     }
 
     @GetMapping("/meter/{meterId}")
@@ -33,7 +36,10 @@ public class MeterReadingController {
 
         return ResponseEntity.ok(
                 ApiResponse.success(
-                        meterReadingService.getReadingsByMeterId(meterId)));
+                        CustomerScope.isAdministrator()
+                                ? meterReadingService.getReadingsByMeterId(meterId)
+                                : meterReadingService.getReadingsByMeterId(
+                                        meterId, CustomerScope.currentCustomerId())));
     }
 
     @GetMapping("/consumption")
@@ -55,6 +61,9 @@ public class MeterReadingController {
 
         return ResponseEntity.ok(
                 ApiResponse.success(
-                        meterReadingService.getConsumption(meterId, from, to)));
+                        CustomerScope.isAdministrator()
+                                ? meterReadingService.getConsumption(meterId, from, to)
+                                : meterReadingService.getConsumption(meterId, from, to,
+                                        CustomerScope.currentCustomerId())));
     }
 }

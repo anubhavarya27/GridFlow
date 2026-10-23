@@ -2,6 +2,7 @@ package com.gridflow.backend.controller;
 
 import com.gridflow.backend.dto.ApiResponse;
 import com.gridflow.backend.service.ProjectedBillService;
+import com.gridflow.backend.security.CustomerScope;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -28,6 +29,9 @@ public class ProjectedBillController {
         }
 
         return ResponseEntity.ok(ApiResponse.success(
-                projectedBillService.getProjectedBills(meterId)));
+                CustomerScope.isAdministrator()
+                        ? projectedBillService.getProjectedBills(meterId)
+                        : projectedBillService.getProjectedBills(
+                                meterId, CustomerScope.currentCustomerId())));
     }
 }

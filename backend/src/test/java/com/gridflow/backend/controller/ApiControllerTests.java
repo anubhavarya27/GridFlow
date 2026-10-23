@@ -7,6 +7,10 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
+import com.gridflow.backend.config.JwtAuthenticationFilter.GridFlowPrincipal;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -44,6 +48,11 @@ class ApiControllerTests {
 
     @BeforeEach
     void setUp() {
+        SecurityContextHolder.clearContext();
+        SecurityContextHolder.getContext().setAuthentication(
+                new UsernamePasswordAuthenticationToken(
+                        new GridFlowPrincipal(1L, "admin", "ADMIN"), null,
+                        List.of(new SimpleGrantedAuthority("ROLE_ADMIN"))));
         bills = mock(BillService.class);
         customers = mock(CustomerService.class);
         dashboard = mock(DashboardService.class);
@@ -201,12 +210,27 @@ class ApiControllerTests {
 
     @Test
     void ownershipEndpointReturnsResultsForValidCustomer() {
+        SecurityContextHolder.getContext().setAuthentication(
+                new UsernamePasswordAuthenticationToken(
+                        new GridFlowPrincipal(1L, "admin", "ADMIN"), null,
+                        List.of(new SimpleGrantedAuthority("ROLE_ADMIN"))));
         var rows = List.of(Map.<String, Object>of("cust_id", 3));
         when(ownerships.getOwnershipsByCustomerId(3)).thenReturn(rows);
 
         var response = ownershipController.getOwnershipsByCustomerId(3);
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(rows, response.getBody().data());
+    }
+
+    @Test
+    void userCannotReadAnotherCustomersOwnership() {
+        SecurityContextHolder.getContext().setAuthentication(
+                new UsernamePasswordAuthenticationToken(
+                        new GridFlowPrincipal(12L, "customer", "USER", 3), null,
+                        List.of(new SimpleGrantedAuthority("ROLE_USER"))));
+        var response = ownershipController.getOwnershipsByCustomerId(4);
+        assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
+        verifyNoInteractions(ownerships);
     }
 
     @Test
