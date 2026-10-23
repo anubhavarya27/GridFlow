@@ -123,23 +123,54 @@ To request a clean build when generated files are not locked:
 
 A successful build does not replace live API and database integration testing.
 
-## API Areas
+## API Reference
 
-The backend contains controllers for:
+Base URL for local development: `http://localhost:8080`
 
-- Authentication and health
-- Customers, properties, and ownership
-- Meter readings and analytics
-- Bills and projected bills
-- Payments and payment details
-- Tariffs and utility services
-- Dashboard data
-- Database benchmarks
+| Method | Endpoint | Purpose |
+|---|---|---|
+| GET | `/api/health` | Health check; public |
+| POST | `/api/auth/login` | Authenticate a user |
+| POST | `/api/auth/verify-approval` | Verify administrator approval credentials |
+| GET | `/api/customers` | List customers |
+| GET | `/api/customers/{customerId}` | Retrieve a customer |
+| GET | `/api/properties` | Retrieve properties |
+| GET | `/api/meters` | Retrieve meters |
+| GET | `/api/ownerships` | List ownership records |
+| GET | `/api/ownerships/customer/{customerId}` | Retrieve ownerships for a customer |
+| GET | `/api/meter-readings` | Retrieve meter readings |
+| GET | `/api/meter-readings/meter/{meterId}` | Retrieve readings for a meter |
+| GET | `/api/meter-readings/consumption` | Retrieve consumption data |
+| GET | `/api/meter-readings/daily-aggregate` | Retrieve daily aggregates |
+| GET | `/api/meter-readings/alerts` | Retrieve meter-reading alerts |
+| GET | `/api/bills` | List bills |
+| GET | `/api/bills/{billId}` | Retrieve a bill |
+| GET | `/api/bills/projected` | Retrieve projected bills |
+| GET | `/api/payments` | List payments |
+| GET | `/api/payments/bill/{billId}` | Retrieve payments for a bill |
+| GET | `/api/payment-details/{resource}` | Retrieve payment details |
+| GET | `/api/tariffs` | List tariffs |
+| GET | `/api/tariffs/{tariffCode}` | Retrieve a tariff |
+| GET | `/api/services` | List utility services |
+| GET | `/api/services/electricity` | Retrieve electricity service information |
+| GET | `/api/services/water` | Retrieve water service information |
+| GET | `/api/dashboard/summary` | Dashboard summary |
+| GET | `/api/dashboard/bill-status` | Dashboard bill status |
+| GET | `/api/dashboard/payment-methods` | Dashboard payment methods |
+| GET | `/api/dashboard/consumption` | Dashboard consumption |
+| GET | `/api/dashboard/revenue` | Dashboard revenue |
+| POST | `/api/database/benchmarks/run` | Run database benchmarks |
+| GET | `/api/database/benchmarks/history?limit=5` | Retrieve benchmark history; `limit` defaults to 20 and must be between 1 and 100 |
 
-Most application endpoints require authentication. Consult the controller and
-security configuration for exact routes, request formats, and authorization
-requirements.
+### Authentication and Authorization
 
+- `GET /api/health` and `POST /api/auth/login` are configured as public routes.
+- Other application endpoints require authentication unless explicitly configured otherwise.
+- Administrator-only routes include `/api/admin/**` and `/api/database/benchmarks/**`.
+- Benchmark execution requires an authenticated administrator and a valid `X-Approval-Token` header.
+- The approval verification endpoint is restricted to authenticated administrators by the current security configuration.
+- Obtain the exact login and approval request fields from the DTO classes and controller implementations.
+- The table documents route mappings; request schemas, response examples, and runtime behavior should be verified separately.
 ## Security Notes
 
 - Never commit `.env`, passwords, or signing secrets.
@@ -153,3 +184,13 @@ requirements.
 The project includes backend controllers and services, database scripts, and
 automated tests. Runtime API behavior, database integration, and deployment
 readiness must be verified separately before release.
+
+
+## API Documentation (Swagger)
+
+When the GridFlow backend is running locally:
+
+- Swagger UI: http://localhost:8080/swagger-ui/index.html
+- OpenAPI JSON: http://localhost:8080/v3/api-docs
+
+Swagger documentation endpoints are publicly accessible. API endpoints remain protected by Spring Security. Use a valid JWT bearer token in Swagger's Authorize feature for protected endpoints. Administrator-only endpoints require an administrator account.

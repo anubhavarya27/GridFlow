@@ -1,4 +1,4 @@
-package com.gridflow.backend.config;
+﻿package com.gridflow.backend.config;
 
 import com.gridflow.backend.service.JwtService;
 import org.springframework.context.annotation.Bean;
@@ -34,11 +34,29 @@ public class SecurityConfig {
             .authorizeHttpRequests(authorize -> authorize
                 .requestMatchers(HttpMethod.GET, "/api/health").permitAll()
                 .requestMatchers(HttpMethod.POST, "/api/auth/login").permitAll()
+
+                .requestMatchers(
+                    "/swagger-ui.html",
+                    "/swagger-ui/**",
+                    "/v3/api-docs",
+                    "/v3/api-docs/**",
+                    "/v3/api-docs.yaml"
+                ).permitAll()
+
                 .requestMatchers(
                     HttpMethod.POST, "/api/auth/verify-approval"
                 ).hasRole("ADMIN")
+
+                .requestMatchers("/api/customers/**").hasRole("ADMIN")
+                .requestMatchers("/api/bills/**").hasRole("ADMIN")
+                .requestMatchers("/api/payments/**").hasRole("ADMIN")
+                .requestMatchers("/api/ownerships/**").hasRole("ADMIN")
+                .requestMatchers("/api/properties/**").hasRole("ADMIN")
+                .requestMatchers("/api/meters/**").hasRole("ADMIN")
+
                 .requestMatchers("/api/admin/**").hasRole("ADMIN")
                 .requestMatchers("/api/database/benchmarks/**").hasRole("ADMIN")
+
                 .anyRequest().authenticated()
             )
             .addFilterBefore(
