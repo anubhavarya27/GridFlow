@@ -1,3 +1,4 @@
+
 package com.gridflow.backend.controller;
 
 import com.gridflow.backend.dto.VerifyApprovalRequest;
@@ -6,6 +7,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDeniedException;
+
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
@@ -313,8 +315,11 @@ class ApiControllerTests {
         when(auth.validateApprovalRequest(any(VerifyApprovalRequest.class)))
             .thenThrow(new AccessDeniedException("Administrator access is required."));
 
-        assertThrows(AccessDeniedException.class,
-            () -> authController.verifyApproval(
-                new VerifyApprovalRequest("test-password")));
+        var response = authController.verifyApproval(
+            new VerifyApprovalRequest("test-password"));
+
+        assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
+        assertEquals("Administrator access is required.",
+            response.getBody().message());
     }
 }

@@ -1,5 +1,7 @@
 package com.gridflow.backend.service;
 
+import org.springframework.jdbc.core.JdbcTemplate;
+
 import com.gridflow.backend.config.JwtAuthenticationFilter.GridFlowPrincipal;
 import com.gridflow.backend.dto.VerifyApprovalRequest;
 import org.junit.jupiter.api.AfterEach;
@@ -25,7 +27,7 @@ class AuthServiceTests {
     void setUp() {
         jwtService = mock(JwtService.class);
         passwordEncoder = mock(PasswordEncoder.class);
-        service = new AuthService(jwtService, passwordEncoder, "stored-hash");
+        service = new AuthService(jwtService, passwordEncoder, org.mockito.Mockito.mock(org.springframework.jdbc.core.JdbcTemplate.class), "stored-hash");
     }
 
     @AfterEach
@@ -122,7 +124,7 @@ class AuthServiceTests {
     @Test
     void missingConfiguredPasswordHashIsRejected() {
         AuthService unconfiguredService =
-            new AuthService(jwtService, passwordEncoder, " ");
+            new AuthService(jwtService, passwordEncoder, org.mockito.Mockito.mock(JdbcTemplate.class), " ");
 
         authenticateAsAdmin(new GridFlowPrincipal(7L, "admin", "ADMIN"));
 
