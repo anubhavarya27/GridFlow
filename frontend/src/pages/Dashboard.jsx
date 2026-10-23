@@ -46,6 +46,7 @@ function Dashboard() {
 
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
+    const [failedSources, setFailedSources] = useState([]);
 
 
     /* =========================================================
@@ -53,8 +54,9 @@ function Dashboard() {
        ========================================================= */
 
     const loadDashboard = useCallback(async () => {
-        setLoading(true);
-        setError("");
+    setLoading(true);
+    setError("");
+    setFailedSources([]);
 
         try {
             const results = await Promise.allSettled([
@@ -228,6 +230,34 @@ function Dashboard() {
                     payments
                 )
             );
+
+            const sourceResults = [
+    ["Dashboard summary", summaryResult],
+    ["Bill status", billStatusResult],
+    ["Payment methods", paymentMethodsResult],
+    ["Consumption", consumptionResult],
+    ["Revenue", revenueResult],
+    ["Bills", billsResult],
+    ["Payments", paymentsResult],
+];
+
+const failed = sourceResults
+    .filter(([, result]) => result.status === "rejected")
+    .map(([name]) => name);
+
+setFailedSources(failed);
+
+if (failed.length === sourceResults.length) {
+    setError(
+        "Dashboard data is unavailable. Check that the backend is running, then refresh."
+    );
+} else if (failed.length > 0) {
+    setError(
+        `Some dashboard sections could not be loaded: ${failed.join(", ")}. Refresh to retry.`
+    );
+} else {
+    setError("");
+}
         } catch (err) {
             console.error(
                 "Dashboard loading error:",
@@ -348,9 +378,23 @@ function Dashboard() {
 
                 <div className="topbar-status">
 
-                    <span className="status-pill live">
-                        LIVE DATA
-                    </span>
+                    <span
+    className={`status-pill ${
+        loading
+            ? "checking"
+            : failedSources.length > 0
+                ? "degraded"
+                : "live"
+    }`}
+>
+    {loading
+        ? "CHECKING"
+        : failedSources.length === 7
+            ? "OFFLINE"
+            : failedSources.length > 0
+                ? "PARTIAL DATA"
+                : "LIVE DATA"}
+</span>
 
                     <button
                         type="button"

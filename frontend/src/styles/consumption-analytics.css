@@ -1,0 +1,219 @@
+
+.analytics-page {
+    --analytics-grid: rgba(150, 170, 180, 0.18);
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+    padding: 28px;
+    color: var(--text-primary, #eaf1f1);
+}
+
+.analytics-header,
+.analytics-panel-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+}
+
+.analytics-eyebrow {
+    color: #5fd0be;
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    font-weight: 700;
+}
+
+.analytics-header h1 {
+    margin: 8px 0;
+    font-size: clamp(24px, 3vw, 34px);
+}
+
+.analytics-header p,
+.analytics-panel-heading p {
+    margin: 0;
+    color: var(--text-secondary, #98a6ad);
+    font-size: 13px;
+}
+
+.analytics-refresh,
+.analytics-clear {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    border: 1px solid var(--border-color, #2a383d);
+    border-radius: 9px;
+    padding: 10px 14px;
+    background: var(--card-bg, #111a1d);
+    color: inherit;
+    cursor: pointer;
+}
+
+.analytics-refresh:disabled {
+    cursor: wait;
+    opacity: 0.6;
+}
+
+.analytics-warning {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 14px;
+    border: 1px solid rgba(242, 169, 59, 0.35);
+    border-radius: 10px;
+    color: #f2c16d;
+    background: rgba(242, 169, 59, 0.06);
+}
+
+.analytics-warning p {
+    margin: 6px 0 0;
+    overflow-wrap: anywhere;
+    font-size: 12px;
+}
+
+.analytics-kpis {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 14px;
+}
+
+.analytics-card,
+.analytics-panel {
+    min-width: 0;
+    padding: 20px;
+    border: 1px solid var(--border-color, #263438);
+    border-radius: 13px;
+    background: var(--card-bg, #111a1d);
+}
+
+.analytics-card {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.analytics-card span {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--text-secondary, #98a6ad);
+    font-size: 12px;
+}
+
+.analytics-card strong {
+    font-size: clamp(20px, 2vw, 28px);
+    overflow-wrap: anywhere;
+}
+
+.analytics-card small {
+    color: var(--text-secondary, #98a6ad);
+    font-size: 11px;
+}
+
+.analytics-chart-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 18px;
+}
+
+.analytics-panel h2 {
+    margin: 0 0 6px;
+    font-size: 16px;
+}
+
+.analytics-chart {
+    height: 280px;
+    margin-top: 22px;
+}
+
+.analytics-empty {
+    padding: 32px 12px;
+    text-align: center;
+    color: var(--text-secondary, #98a6ad);
+    font-size: 13px;
+}
+
+.analytics-filters {
+    display: flex;
+    align-items: end;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin: 22px 0;
+}
+
+.analytics-filters label {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+    color: var(--text-secondary, #98a6ad);
+    font-size: 12px;
+}
+
+.analytics-filters input,
+.analytics-filters select {
+    min-width: 150px;
+    padding: 10px;
+    border: 1px solid var(--border-color, #2a383d);
+    border-radius: 8px;
+    background: var(--page-bg, #0b1113);
+    color: inherit;
+}
+
+.analytics-table-wrap {
+    overflow-x: auto;
+}
+
+.analytics-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+}
+
+.analytics-table th,
+.analytics-table td {
+    padding: 13px 12px;
+    border-bottom: 1px solid var(--border-color, #263438);
+    text-align: left;
+    white-space: nowrap;
+}
+
+.analytics-table th {
+    color: var(--text-secondary, #98a6ad);
+    font-weight: 600;
+}
+
+@media (max-width: 1000px) {
+    .analytics-kpis {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 700px) {
+    .analytics-page {
+        padding: 16px;
+    }
+
+    .analytics-header {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .analytics-chart-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .analytics-chart {
+        height: 240px;
+    }
+
+    .analytics-filters {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .analytics-filters input,
+    .analytics-filters select {
+        width: 100%;
+        box-sizing: border-box;
+    }
+}

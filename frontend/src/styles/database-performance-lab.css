@@ -1,0 +1,254 @@
+
+.performance-page {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  padding: 28px;
+  color: var(--text-primary, #e8edf5);
+}
+
+.performance-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.performance-eyebrow {
+  color: #5fd0be;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1.6px;
+}
+
+.performance-header h1 {
+  margin: 10px 0 8px;
+  font-size: clamp(25px, 3vw, 34px);
+}
+
+.performance-header p,
+.performance-section-heading p {
+  margin: 0;
+  color: var(--text-secondary, #98a5b8);
+  line-height: 1.6;
+}
+
+.performance-header-icon {
+  display: grid;
+  place-items: center;
+  width: 58px;
+  height: 58px;
+  flex-shrink: 0;
+  color: #5fd0be;
+  background: rgba(95, 208, 190, 0.1);
+  border: 1px solid rgba(95, 208, 190, 0.25);
+  border-radius: 16px;
+}
+
+.performance-kpis {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.performance-card,
+.performance-panel,
+.performance-note {
+  min-width: 0;
+  padding: 22px;
+  background: var(--surface, rgba(255, 255, 255, 0.035));
+  border: 1px solid var(--border, rgba(148, 163, 184, 0.16));
+  border-radius: 16px;
+}
+
+.performance-card {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.performance-card > span {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-secondary, #a4b0c1);
+  font-size: 13px;
+}
+
+.performance-card > strong {
+  font-size: clamp(24px, 3vw, 32px);
+  letter-spacing: -0.7px;
+}
+
+.performance-card small {
+  color: var(--text-secondary, #98a5b8);
+  line-height: 1.5;
+}
+
+.performance-highlight > strong {
+  color: #5fd0be;
+}
+
+.performance-section-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.performance-section-heading h2 {
+  margin: 0 0 6px;
+  font-size: 18px;
+}
+
+.performance-unit {
+  color: var(--text-secondary, #98a5b8);
+  font-size: 12px;
+}
+
+.benchmark-row {
+  display: grid;
+  grid-template-columns: minmax(180px, 1fr) minmax(100px, 1.5fr) 90px;
+  align-items: center;
+  gap: 20px;
+  margin-top: 24px;
+}
+
+.benchmark-label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.benchmark-label strong {
+  font-size: 14px;
+}
+
+.benchmark-label span {
+  color: var(--text-secondary, #98a5b8);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.benchmark-track {
+  height: 12px;
+  overflow: hidden;
+  background: rgba(148, 163, 184, 0.12);
+  border-radius: 99px;
+}
+
+.benchmark-bar {
+  height: 100%;
+  background: #e9a949;
+  border-radius: inherit;
+}
+
+.benchmark-bar-fast {
+  background: #5fd0be;
+}
+
+.benchmark-value {
+  text-align: right;
+  white-space: nowrap;
+  font-size: 14px;
+}
+
+.performance-table-wrap {
+  overflow-x: auto;
+}
+
+.performance-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.performance-table th,
+.performance-table td {
+  padding: 14px 12px;
+  border-bottom: 1px solid var(--border, rgba(148, 163, 184, 0.16));
+  font-size: 13px;
+}
+
+.performance-table th {
+  color: var(--text-secondary, #98a5b8);
+  font-weight: 600;
+}
+
+.performance-table tr:last-child td {
+  border-bottom: none;
+}
+
+.performance-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  color: #e8c77d;
+  background: rgba(233, 169, 73, 0.07);
+  border-color: rgba(233, 169, 73, 0.24);
+}
+
+.performance-note > svg {
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.performance-note p {
+  margin: 8px 0 0;
+  color: var(--text-secondary, #b2bac7);
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+.performance-fields {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.performance-fields code {
+  padding: 8px 10px;
+  color: #8be0d2;
+  background: rgba(95, 208, 190, 0.08);
+  border: 1px solid rgba(95, 208, 190, 0.2);
+  border-radius: 8px;
+  font-size: 12px;
+}
+
+@media (max-width: 800px) {
+  .performance-kpis {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .benchmark-row {
+    grid-template-columns: 1fr 80px;
+    gap: 12px;
+  }
+
+  .benchmark-track {
+    grid-column: 1 / -1;
+    grid-row: 2;
+  }
+
+  .benchmark-value {
+    grid-column: 2;
+    grid-row: 1;
+  }
+}
+
+@media (max-width: 520px) {
+  .performance-page {
+    padding: 16px;
+  }
+
+  .performance-kpis {
+    grid-template-columns: 1fr;
+  }
+
+  .performance-card,
+  .performance-panel,
+  .performance-note {
+    padding: 17px;
+  }
+}

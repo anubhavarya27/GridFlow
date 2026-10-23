@@ -184,6 +184,12 @@
     gap: 9px;
 }
 
+.status-pill.degraded {
+    color: #f2a93b;
+    border-color: rgba(242, 169, 59, 0.3);
+    background: rgba(242, 169, 59, 0.06);
+}
+
 .status-pill {
     padding: 7px 10px;
 

@@ -176,6 +176,11 @@ export default function OperationsHub() {
         }
     };
 
+    // Load live operations data when this page first mounts.
+    useEffect(() => {
+        void load();
+    }, []);
+
     const d = data;
     const q = search.trim().toLowerCase();
 
@@ -196,6 +201,51 @@ export default function OperationsHub() {
     const meterReadingsFor = id => (d.readings || []).filter(x => String(x.meter_id) === String(id));
     const billsForMeter = id => (d.bills || []).filter(x => String(x.meter_id) === String(id));
     const paymentsForBill = id => (d.payments || []).filter(x => String(x.bill_id) === String(id));
+
+    // Estimate each bill using the matching tariff and service records from the API.
+    // This is an estimate only; the backend remains the source of truth for final bills.
+    const projectedBills = (d.bills || []).map((bill) => {
+        const tariff = (d.tariffs || []).find(
+            (item) => String(item.tariff_code) === String(bill.tariff_code)
+        );
+        const service = tariff
+            ? (d.services || []).find(
+                (item) => String(item.service_id) === String(tariff.service_id)
+            )
+            : null;
+
+        const hasPrevious = bill.previous_reading !== null && bill.previous_reading !== undefined && bill.previous_reading !== "";
+        const hasCurrent = bill.current_reading !== null && bill.current_reading !== undefined && bill.current_reading !== "";
+        const hasRate = tariff?.unit_rate !== null && tariff?.unit_rate !== undefined && tariff?.unit_rate !== "";
+        const hasFixedCharge = service?.fixed_charge !== null && service?.fixed_charge !== undefined && service?.fixed_charge !== "";
+        const previous = Number(bill.previous_reading);
+        const current = Number(bill.current_reading);
+        const rate = Number(tariff?.unit_rate);
+        const fixedCharge = Number(service?.fixed_charge);
+        const taxRate = Number(service?.tax ?? 0);
+
+        const available = Boolean(
+            tariff && service && hasPrevious && hasCurrent && hasRate && hasFixedCharge &&
+            Number.isFinite(previous) && Number.isFinite(current) && current >= previous &&
+            Number.isFinite(rate) && rate >= 0 && Number.isFinite(fixedCharge) && fixedCharge >= 0 &&
+            Number.isFinite(taxRate) && taxRate >= 0
+        );
+
+        if (!available) {
+            return { ...bill, projectionAvailable: false };
+        }
+
+        const projectedUsage = current - previous;
+        const beforeTax = projectedUsage * rate + fixedCharge;
+        const projectedAmount = beforeTax * (1 + taxRate / 100);
+
+        return {
+            ...bill,
+            projectionAvailable: true,
+            projectedUsage,
+            projectedAmount,
+        };
+    });
 
     const renderCustomer = () => {
         const c = selected || customers[0];
@@ -237,7 +287,7 @@ export default function OperationsHub() {
 
         "/tariff-lab": <><div className="op-stats"><Stat label="Tariffs" value={num(tariffs.length)} icon={FileText}/><Stat label="Utility services" value={num((d.services||[]).length)} icon={Activity}/><Stat label="Electricity" value={num((d.electricity||[]).length)} icon={Zap}/><Stat label="Water" value={num((d.water||[]).length)} icon={Droplets}/></div><Panel title="Tariff configuration" meta="READ-ONLY INSPECTION"><Table columns={["Tariff","Unit rate","Service","Fixed charge","Tax"]} rows={tariffs} render={t=>{const s=(d.services||[]).find(x=>String(x.service_id)===String(t.service_id)) || (d.services||[])[tariffs.indexOf(t) % Math.max(1,(d.services||[]).length)];return <><td><b>{t.tariff_code}</b></td><td>{money(t.unit_rate)}</td><td>{s ? `Service #${s.service_id}`:"—"}</td><td>{money(s?.fixed_charge)}</td><td>{s?.tax ?? "—"}%</td></>}}/></Panel></>,
 
-        "/billing-center": <><div className="op-stats"><Stat label="Bills" value={num(bills.length)} icon={Receipt}/><Stat label="Paid" value={num(bills.filter(b=>String(b.bill_status).toLowerCase()==="paid").length)} icon={CircleDollarSign}/><Stat label="Pending" value={num(bills.filter(b=>String(b.bill_status).toLowerCase()==="pending").length)} icon={CalendarDays}/><Stat label="Billed amount" value={money(bills.reduce((s,b)=>s+Number(b.total_amount||b.amount||0),0))} icon={IndianRupee}/></div><Panel title="Billing center" meta="BILL REGISTER"><div className="op-search"><Search size={16}/><input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search bill, meter, month or status..." /></div><Table columns={["Bill","Meter","Month","Readings","Tariff","Status"]} rows={bills} render={b=><><td><b>#{b.bill_id}</b></td><td>{b.meter_id}</td><td>{date(b.billing_month)}</td><td>{b.previous_reading ?? "—"} → {b.current_reading ?? "—"}</td><td>{b.tariff_code || "—"}</td><td><Badge tone={String(b.bill_status||"").toLowerCase()}>{b.bill_status}</Badge></td></>}/></Panel></>,
+        "/billing-center": <><div className="op-stats"><Stat label="Bills" value={num(bills.length)} icon={Receipt}/><Stat label="Paid" value={num(bills.filter(b=>String(b.bill_status).toLowerCase()==="paid").length)} icon={CircleDollarSign}/><Stat label="Pending" value={num(bills.filter(b=>String(b.bill_status).toLowerCase()==="pending").length)} icon={CalendarDays}/><Stat label="Billed amount" value={money(bills.reduce((s,b)=>s+Number(b.total_amount||b.amount||0),0))} icon={IndianRupee}/></div><Panel title="Billing center" meta="BILL REGISTER"><div className="op-search"><Search size={16}/><input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search bill, meter, month or status..." /></div><Table columns={["Bill","Meter","Month","Readings","Tariff","Status"]} rows={bills} render={b=><><td><b>#{b.bill_id}</b></td><td>{b.meter_id}</td><td>{date(b.billing_month)}</td><td>{b.previous_reading ?? "—"} → {b.current_reading ?? "—"}</td><td>{b.tariff_code || "—"}</td><td><Badge tone={String(b.bill_status||"").toLowerCase()}>{b.bill_status}</Badge></td></>}/></Panel><Panel title="Projected billing" meta="ESTIMATE FROM CURRENT TARIFF DATA"><p className="op-muted" style={{ padding: "0 16px" }}>Indicative estimate using consumption difference, matching tariff unit rate, fixed charge and service tax. This does not replace the final bill generated by the backend.</p><Table columns={["Bill","Meter","Usage","Tariff","Estimated amount"]} rows={projectedBills} render={b=><><td><b>#{b.bill_id}</b></td><td>{b.meter_id}</td><td>{b.projectionAvailable ? `${num(b.projectedUsage)} units` : "Unavailable"}</td><td>{b.tariff_code || "—"}</td><td>{b.projectionAvailable ? money(b.projectedAmount) : <span title="Required reading, tariff or service fields are missing or invalid">Needs tariff/reading data</span>}</td></>}/></Panel></>,
 
         "/payment-hub": <><div className="op-stats"><Stat label="Payments" value={num(payments.length)} icon={CreditCard}/><Stat label="Collected" value={money(payments.reduce((s,p)=>s+Number(p.amount||0),0))} icon={Wallet}/><Stat label="Card" value={num(payments.filter(p=>String(p.payment_mode).toLowerCase()==="card").length)} icon={CreditCard}/><Stat label="UPI" value={num(payments.filter(p=>String(p.payment_mode).toLowerCase()==="upi").length)} icon={IndianRupee}/></div><Panel title="Payment hub" meta="PAYMENT REGISTER"><div className="op-search"><Search size={16}/><input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search payment, bill or mode..." /></div><Table columns={["Payment","Bill","Date","Amount","Mode","Due date"]} rows={payments} render={p=><><td><b>#{p.payment_id}</b></td><td>#{p.bill_id}</td><td>{date(p.payment_date)}</td><td>{money(p.amount)}</td><td><Badge tone={String(p.payment_mode||"").toLowerCase()}>{p.payment_mode}</Badge></td><td>{date(p.payment_due_date)}</td></>}/></Panel></>,
     }[path] || null;

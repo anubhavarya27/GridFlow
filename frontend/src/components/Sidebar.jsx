@@ -10,17 +10,18 @@ import {
     Settings,
     ShieldCheck,
     Users,
+    Activity,
     Building2,
     Gauge,
     Receipt,
     CreditCard,
+    AlertTriangle,
 } from "lucide-react";
 
 import { NavLink } from "react-router-dom";
 
 import { isAdmin } from "../services/auth";
 import { getQueryRequests } from "../services/api";
-
 
 const mainNav = [
     {
@@ -39,6 +40,21 @@ const mainNav = [
         icon: Search,
     },
     {
+        label: "Consumption Analytics",
+        path: "/consumption-analytics",
+        icon: Activity,
+    },
+    {
+        label: "Database Performance Lab",
+        path: "/performance-lab",
+        icon: Database,
+    },
+    {
+        label: "Consumption Alerts",
+        path: "/consumption-alerts",
+        icon: AlertTriangle,
+    },
+    {
         label: "Processing",
         path: "/records",
         icon: ClipboardList,
@@ -49,7 +65,6 @@ const mainNav = [
         icon: BarChart3,
     },
 ];
-
 
 const operationsNav = [
     {
@@ -84,16 +99,10 @@ const operationsNav = [
     },
 ];
 
-
 function Sidebar() {
     const admin = isAdmin();
 
     const [pendingCount, setPendingCount] = useState(0);
-
-
-    /* =====================================================
-       LOAD PENDING APPROVAL COUNT
-       ===================================================== */
 
     useEffect(() => {
         if (!admin) {
@@ -111,9 +120,7 @@ function Sidebar() {
                     return;
                 }
 
-                const requests = Array.isArray(data)
-                    ? data
-                    : [];
+                const requests = Array.isArray(data) ? data : [];
 
                 const count = requests.filter(
                     (request) =>
@@ -132,10 +139,7 @@ function Sidebar() {
 
         loadPendingCount();
 
-        const interval = setInterval(
-            loadPendingCount,
-            10000
-        );
+        const interval = setInterval(loadPendingCount, 10000);
 
         return () => {
             mounted = false;
@@ -143,179 +147,85 @@ function Sidebar() {
         };
     }, [admin]);
 
-
     return (
         <aside className="sidebar">
-
-            {/* =================================================
-                BRAND
-               ================================================= */}
-
             <div className="sidebar-brand">
-
                 <div className="sidebar-logo">
-                    <Gauge
-                        size={21}
-                        strokeWidth={1.8}
-                    />
+                    <Gauge size={21} strokeWidth={1.8} />
                 </div>
 
                 <div>
-                    <strong>
-                        GridFlow
-                    </strong>
-
+                    <strong>GridFlow</strong>
                     <span>
-                        {admin
-                            ? "ADMIN CONSOLE"
-                            : "UTILITY SYSTEM"}
+                        {admin ? "ADMIN CONSOLE" : "UTILITY SYSTEM"}
                     </span>
                 </div>
-
             </div>
 
-
-            {/* =================================================
-                NAVIGATION
-               ================================================= */}
-
             <nav className="sidebar-nav">
-
-                {/* =================================================
-                    OVERVIEW
-                   ================================================= */}
-
                 <div className="nav-group">
+                    <span className="nav-label">OVERVIEW</span>
 
-                    <span className="nav-label">
-                        OVERVIEW
-                    </span>
-
-                    {mainNav.map(
-                        ({
-                            label,
-                            path,
-                            icon: Icon,
-                        }) => (
-                            <NavLink
-                                key={path}
-                                to={path}
-                                className={({ isActive }) =>
-                                    `side-link ${
-                                        isActive
-                                            ? "active"
-                                            : ""
-                                    }`
-                                }
-                            >
-                                <Icon size={15} />
-
-                                <span>
-                                    {label}
-                                </span>
-                            </NavLink>
-                        )
-                    )}
-
+                    {mainNav.map(({ label, path, icon: Icon }) => (
+                        <NavLink
+                            key={path}
+                            to={path}
+                            className={({ isActive }) =>
+                                `side-link ${isActive ? "active" : ""}`
+                            }
+                        >
+                            <Icon size={15} />
+                            <span>{label}</span>
+                        </NavLink>
+                    ))}
                 </div>
 
-
-                {/* =================================================
-                    OPERATIONS
-                   ================================================= */}
-
                 <div className="nav-group">
+                    <span className="nav-label">OPERATIONS</span>
 
-                    <span className="nav-label">
-                        OPERATIONS
-                    </span>
-
-                    {operationsNav.map(
-                        ({
-                            label,
-                            path,
-                            icon: Icon,
-                        }) => (
-                            <NavLink
-                                key={path}
-                                to={path}
-                                className={({ isActive }) =>
-                                    `side-link ${
-                                        isActive
-                                            ? "active"
-                                            : ""
-                                    }`
-                                }
-                            >
-                                <Icon size={15} />
-
-                                <span>
-                                    {label}
-                                </span>
-                            </NavLink>
-                        )
-                    )}
-
+                    {operationsNav.map(({ label, path, icon: Icon }) => (
+                        <NavLink
+                            key={path}
+                            to={path}
+                            className={({ isActive }) =>
+                                `side-link ${isActive ? "active" : ""}`
+                            }
+                        >
+                            <Icon size={15} />
+                            <span>{label}</span>
+                        </NavLink>
+                    ))}
                 </div>
-
-
-                {/* =================================================
-                    ADMIN
-                   ================================================= */}
 
                 {admin && (
                     <div className="nav-group">
-
                         <NavLink
                             to="/admin"
                             className={({ isActive }) =>
-                                `side-link ${
-                                    isActive
-                                        ? "active"
-                                        : ""
-                                }`
+                                `side-link ${isActive ? "active" : ""}`
                             }
                         >
-
                             <ShieldCheck size={15} />
-
-                            <span>
-                                Approvals
-                            </span>
+                            <span>Approvals</span>
 
                             {pendingCount > 0 && (
                                 <span className="approval-count">
                                     {pendingCount}
                                 </span>
                             )}
-
                         </NavLink>
-
                     </div>
                 )}
-
             </nav>
 
-
-            {/* =================================================
-                FOOTER
-               ================================================= */}
-
             <div className="sidebar-footer">
-
                 <Settings size={14} />
-
                 <span>
-                    {admin
-                        ? "ADMIN · GridFlow"
-                        : "USER · GridFlow"}
+                    {admin ? "ADMIN · GridFlow" : "USER · GridFlow"}
                 </span>
-
             </div>
-
         </aside>
     );
 }
-
 
 export default Sidebar;

@@ -7,15 +7,17 @@ import {
 } from "react-router-dom";
 import { useState } from "react";
 import OperationsHub from "./pages/OperationsHub";
-
+import ConsumptionAnalytics from "./pages/ConsumptionAnalytics";
 import Landing from "./pages/Landing";
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import DatabaseExplorer from "./pages/DatabaseExplorer";
 import QueryStudio from "./pages/QueryStudio";
 import RecordManagement from "./pages/RecordManagement";
+import ConsumptionAlerts from "./pages/ConsumptionAlerts";
 import AdminPanel from "./pages/AdminPanel";
 import Reports from "./pages/Reports";
+import DatabasePerformanceLab from "./pages/DatabasePerformanceLab";
 
 import AppLayout from "./layouts/AppLayout";
 
@@ -278,6 +280,18 @@ function App() {
 <Route path="/tariff-lab" element={<ProtectedRoute><OperationsHub /></ProtectedRoute>} />
 <Route path="/billing-center" element={<ProtectedRoute><OperationsHub /></ProtectedRoute>} />
 <Route path="/payment-hub" element={<ProtectedRoute><OperationsHub /></ProtectedRoute>} />
+<Route
+  path="/performance-lab"
+  element={<DatabasePerformanceLab />}
+/>
+<Route
+  path="/consumption-alerts"
+  element={<ConsumptionAlerts />}
+/>
+<Route
+    path="/consumption-analytics"
+    element={<ConsumptionAnalytics />}
+/>
 
                     <Route
                         path="/dashboard"
