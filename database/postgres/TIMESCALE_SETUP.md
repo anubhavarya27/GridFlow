@@ -1,54 +1,107 @@
 # GridFlow TimescaleDB Setup
 
-## Local connection
+## Local Connection
 
 - Host: localhost
 - Port: 5433
 - Database: gridflow
 - Username: gridflow
-- Password: locally configured development password
+- Password: configured locally in `.env`
 
-The original PostgreSQL instance remains on port 5432. TimescaleDB uses a separate Docker volume.
+The Docker port is bound to `127.0.0.1`, so the database is intended for
+local development on this computer. The database uses a separate Docker volume.
 
-## Start the database
+## Start the Database
 
-    docker start gridflow-timescale
-    docker exec gridflow-timescale pg_isready -U gridflow -d gridflow
+```powershell
+docker compose -f .\compose.timescale.yml up -d
+docker exec gridflow-timescale pg_isready -U gridflow -d gridflow
+```
 
-## Migration order for a new empty database
+## Fresh Database Initialization
 
-1. Apply `001_schema.sql`.
-2. Apply `002_auth.sql`.
-3. Apply `003_timescale_hypertable.sql`.
+For a new, empty database volume, the Compose configuration mounts these
+scripts in numerical order:
 
-Set connection credentials locally. Never commit passwords to Git.
+1. `001_schema.sql`
+2. `002_auth.sql`
+3. `003_timescale_hypertable.sql`
+4. `004_sample_data.sql`
+5. `005_database_benchmarks.sql`
 
-## Existing database migration
+Docker runs these initialization scripts only when initializing a new data
+directory. Restarting an existing container does not rerun them.
 
-1. Take and validate a backup.
-2. Restore it into a separate TimescaleDB instance.
-3. Apply `003_timescale_hypertable.sql`.
-4. Verify table counts, row counts, constraints, and hypertable status.
+## Existing Database
 
-## Schema changes
+Before migrating an existing database:
 
-Migration 003 converts `public.meter_reading` into a hypertable partitioned by `reading_date`, with one-month chunks.
+1. Back up the database and verify that the backup can be restored.
+2. Determine which migrations and database objects already exist.
+3. Review the pending migration SQL and its assumptions.
+4. Apply only the missing migration steps.
+5. Verify the resulting schema and data.
 
-The primary key changes from `(meter_id, reading_no)` to `(meter_id, reading_no, reading_date)` because a hypertable's unique key must include the partitioning column.
+Do not delete the database volume to rerun initialization scripts.
 
-The `meter` foreign key and `chk_reading_status` and `chk_reading_value` constraints are preserved.
+If migration `005_database_benchmarks.sql` has not been applied to an existing
+database, review it and apply it separately after backing up and confirming
+the target database.
 
-Important: this key change no longer enforces global uniqueness of `(meter_id, reading_no)` across different dates. Confirm this is compatible with the backend's intended data model.
+## Meter-Reading Hypertable
 
-## Verify
+Migration `003_timescale_hypertable.sql` converts `public.meter_reading` into
+a TimescaleDB hypertable partitioned by `reading_date`, with one-month chunks.
 
-    SELECT hypertable_schema, hypertable_name
-    FROM timescaledb_information.hypertables
-    WHERE hypertable_name = 'meter_reading';
+The primary key changes from `(meter_id, reading_no)` to
+`(meter_id, reading_no, reading_date)` because a hypertable's unique key must
+include the partitioning column.
 
-    SELECT COUNT(*) AS table_count
-    FROM information_schema.tables
-    WHERE table_schema = 'public'
-      AND table_type = 'BASE TABLE';
+This change no longer enforces global uniqueness of `(meter_id, reading_no)`
+across different dates. Confirm compatibility with the intended data model
+before migrating an existing database.
 
-The Docker port is bound to 127.0.0.1, so it is accessible from this laptop only, not directly from a teammate's computer.
+## Verification
+
+Check hypertable status:
+
+```sql
+SELECT hypertable_schema, hypertable_name
+FROM timescaledb_information.hypertables
+WHERE hypertable_schema = 'public'
+  AND hypertable_name = 'meter_reading';
+```
+
+Check benchmark history:
+
+```sql
+SELECT to_regclass('public.database_benchmark_history')
+    AS benchmark_history_table;
+```
+
+Check the daily continuous aggregate:
+
+```sql
+SELECT view_schema, view_name
+FROM timescaledb_information.continuous_aggregates
+WHERE view_schema = 'public'
+  AND view_name = 'meter_reading_daily';
+```
+
+Check public base-table count:
+
+```sql
+SELECT COUNT(*) AS table_count
+FROM information_schema.tables
+WHERE table_schema = 'public'
+  AND table_type = 'BASE TABLE';
+```
+
+These checks verify object presence; they do not prove all application
+workflows or migrations are correct.
+
+## Security
+
+- Never commit `.env` or real credentials.
+- Keep the database port private unless remote access is required.
+- Back up existing data before schema changes.

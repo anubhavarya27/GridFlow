@@ -15,6 +15,7 @@ services:
       - ./database/postgres/002_auth.sql:/docker-entrypoint-initdb.d/002_auth.sql:ro
       - ./database/postgres/003_timescale_hypertable.sql:/docker-entrypoint-initdb.d/003_timescale_hypertable.sql:ro
       - ./database/postgres/004_sample_data.sql:/docker-entrypoint-initdb.d/004_sample_data.sql:ro
+      - ./database/postgres/005_database_benchmarks.sql:/docker-entrypoint-initdb.d/005_database_benchmarks.sql:ro
 
 volumes:
   gridflow_timescale_data:
