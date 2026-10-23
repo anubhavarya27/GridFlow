@@ -108,7 +108,7 @@ export const getMeters = () =>
    ========================================================= */
 
 export const getReadings = () =>
-    apiRequest("/readings");
+    apiRequest("/meter-readings");
 
 
 /* =========================================================

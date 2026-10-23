@@ -1,3 +1,4 @@
+
 import { API_BASE_URL } from "./config";
 
 const AUTH_KEY = "ubill_session";
@@ -25,20 +26,27 @@ export async function login(username, password, role) {
             };
         }
 
-        const backendUser = result.data.user;
+        const backendData = result.data;
 
-        // Keep the frontend role format compatible with
-        // the existing AdminRoute / UI logic.
+        // Map the backend response to the frontend session format.
         const session = {
-            token: result.data.token,
-            user_id: backendUser.user_id,
-            username: backendUser.username,
-            role: backendUser.role.toLowerCase(),
+            token: backendData.accessToken,
+            user_id: backendData.userId,
+            username: backendData.username,
+            role: backendData.role.toLowerCase(),
+            customer_id: backendData.customerId ?? null,
             name:
-                backendUser.role === "ADMIN"
+                backendData.role === "ADMIN"
                     ? "GridFlow Administrator"
-                    : backendUser.username,
+                    : backendData.username,
         };
+
+        if (!session.token || !session.role || !session.username) {
+            return {
+                success: false,
+                message: "Invalid login response from the backend.",
+            };
+        }
 
         localStorage.setItem(
             AUTH_KEY,
@@ -54,8 +62,7 @@ export async function login(username, password, role) {
 
         return {
             success: false,
-            message:
-                "Unable to connect to the backend server.",
+            message: "Unable to connect to the backend server.",
         };
     }
 }
@@ -136,6 +143,13 @@ export async function verifyApproval(approvalPassword) {
             };
         }
 
+        if (!result.data?.approvalToken) {
+            return {
+                success: false,
+                message: "Invalid approval response from the backend.",
+            };
+        }
+
         localStorage.setItem(
             "ubill_approval_token",
             result.data.approvalToken
@@ -144,11 +158,12 @@ export async function verifyApproval(approvalPassword) {
         return {
             success: true,
         };
-    } catch {
+    } catch (error) {
+        console.error("Approval verification error:", error);
+
         return {
             success: false,
-            message:
-                "Unable to connect to the backend server.",
+            message: "Unable to connect to the backend server.",
         };
     }
 }
