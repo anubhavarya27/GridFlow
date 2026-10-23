@@ -1,4 +1,3 @@
-
 package com.gridflow.backend.service;
 
 import io.jsonwebtoken.Claims;
@@ -38,17 +37,35 @@ public class JwtService {
     }
 
     public String generateAccessToken(long userId, String username, String role) {
-        Date now = new Date();
+        return generateAccessToken(userId, username, role, null);
+    }
 
-        return Jwts.builder()
+    public String generateAccessToken(
+            long userId,
+            String username,
+            String role,
+            Integer customerId) {
+
+        Date now = new Date();
+        String normalizedRole = role.toUpperCase(java.util.Locale.ROOT);
+
+        var builder = Jwts.builder()
                 .subject(username)
                 .claim("userId", userId)
-                .claim("role", role.toUpperCase())
+                .claim("role", normalizedRole)
                 .claim("tokenType", "access")
                 .issuedAt(now)
-                .expiration(new Date(now.getTime() + accessExpirationMs))
-                .signWith(signingKey)
-                .compact();
+                .expiration(new Date(now.getTime() + accessExpirationMs));
+
+        if ("USER".equals(normalizedRole)) {
+            if (customerId == null || customerId <= 0) {
+                throw new IllegalArgumentException(
+                        "A valid customer mapping is required for user access.");
+            }
+            builder.claim("customerId", customerId);
+        }
+
+        return builder.signWith(signingKey).compact();
     }
 
     public String generateApprovalToken(long adminUserId) {
@@ -80,6 +97,14 @@ public class JwtService {
 
         if (!"access".equals(claims.get("tokenType", String.class))) {
             throw new JwtException("Invalid access token type");
+        }
+
+        String role = claims.get("role", String.class);
+        if ("USER".equals(role)) {
+            Number customerId = claims.get("customerId", Number.class);
+            if (customerId == null || customerId.intValue() <= 0) {
+                throw new JwtException("User token has no valid customer mapping");
+            }
         }
 
         return claims;

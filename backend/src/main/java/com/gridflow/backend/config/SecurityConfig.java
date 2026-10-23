@@ -1,4 +1,4 @@
-﻿package com.gridflow.backend.config;
+package com.gridflow.backend.config;
 
 import com.gridflow.backend.service.JwtService;
 import org.springframework.context.annotation.Bean;

@@ -1,4 +1,3 @@
-
 package com.gridflow.backend.config;
 
 import com.gridflow.backend.service.JwtService;
@@ -45,18 +44,35 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
             String username = claims.getSubject();
             String role = claims.get("role", String.class);
-            Long userId = claims.get("userId", Long.class);
+            Object userIdClaim = claims.get("userId");
+            Object customerIdClaim = claims.get("customerId");
 
-            if (username == null || username.isBlank()
-                    || userId == null || userId <= 0
+            if (!(userIdClaim instanceof Number userIdNumber)
+                    || username == null || username.isBlank()
+                    || userIdNumber.longValue() <= 0
                     || role == null
                     || (!role.equals("ADMIN") && !role.equals("USER"))) {
                 sendUnauthorized(response);
                 return;
             }
 
-            GridFlowPrincipal principal =
-                    new GridFlowPrincipal(userId, username, role);
+            Integer customerId = null;
+
+            if ("USER".equals(role)) {
+                if (!(customerIdClaim instanceof Number customerIdNumber)
+                        || customerIdNumber.intValue() <= 0) {
+                    sendUnauthorized(response);
+                    return;
+                }
+                customerId = customerIdNumber.intValue();
+            }
+
+            GridFlowPrincipal principal = new GridFlowPrincipal(
+                    userIdNumber.longValue(),
+                    username,
+                    role,
+                    customerId
+            );
 
             UsernamePasswordAuthenticationToken authentication =
                     new UsernamePasswordAuthenticationToken(
@@ -90,6 +106,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     public record GridFlowPrincipal(
             Long userId,
             String username,
-            String role) {
+            String role,
+            Integer customerId) {
+
+        public GridFlowPrincipal(
+                Long userId,
+                String username,
+                String role) {
+            this(userId, username, role, null);
+        }
     }
 }

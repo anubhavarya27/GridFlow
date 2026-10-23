@@ -1,4 +1,3 @@
-
 package com.gridflow.backend.service;
 
 import com.gridflow.backend.config.JwtAuthenticationFilter.GridFlowPrincipal;
@@ -15,6 +14,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
@@ -49,7 +49,8 @@ public class AuthService {
         Map<String, Object> user;
         try {
             user = jdbcTemplate.queryForMap("""
-                    SELECT user_id, username, password_hash, role, account_status
+                    SELECT user_id, username, password_hash, role,
+                           account_status, cust_id
                     FROM app_user
                     WHERE LOWER(username) = LOWER(?)
                     """, requestedUsername);
@@ -77,16 +78,34 @@ public class AuthService {
 
         long userId = ((Number) user.get("user_id")).longValue();
         String username = (String) user.get("username");
-        String accessToken =
-                jwtService.generateAccessToken(userId, username, actualRole);
 
-        return Map.of(
-                "accessToken", accessToken,
-                "tokenType", "Bearer",
-                "userId", userId,
-                "username", username,
-                "role", actualRole
-        );
+        Integer customerId = null;
+        if ("USER".equals(actualRole)) {
+            Object mappedCustomerId = user.get("cust_id");
+
+            if (!(mappedCustomerId instanceof Number number)
+                    || number.intValue() <= 0) {
+                throw new CustomerMappingRequiredException();
+            }
+
+            customerId = number.intValue();
+        }
+
+        String accessToken = jwtService.generateAccessToken(
+                userId, username, actualRole, customerId);
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("accessToken", accessToken);
+        response.put("tokenType", "Bearer");
+        response.put("userId", userId);
+        response.put("username", username);
+        response.put("role", actualRole);
+
+        if (customerId != null) {
+            response.put("customerId", customerId);
+        }
+
+        return response;
     }
 
     public String validateApprovalRequest(VerifyApprovalRequest request) {
@@ -95,8 +114,8 @@ public class AuthService {
 
         if (authentication == null
                 || !authentication.isAuthenticated()
-                || !authentication.getAuthorities().stream()
-                        .anyMatch(a -> "ROLE_ADMIN".equals(a.getAuthority()))) {
+                || authentication.getAuthorities().stream()
+                        .noneMatch(a -> "ROLE_ADMIN".equals(a.getAuthority()))) {
             throw new AccessDeniedException(
                     "Administrator access is required.");
         }
@@ -194,6 +213,13 @@ public class AuthService {
             extends RuntimeException {
         public AccountNotActiveException() {
             super("This account is not active.");
+        }
+    }
+
+    public static class CustomerMappingRequiredException
+            extends RuntimeException {
+        public CustomerMappingRequiredException() {
+            super("This user account has no customer mapping. Contact an administrator.");
         }
     }
 
