@@ -1,4 +1,3 @@
-
 package com.gridflow.backend.config;
 
 import com.gridflow.backend.service.JwtService;
@@ -33,19 +32,13 @@ public class SecurityConfig {
                 session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             )
             .authorizeHttpRequests(authorize -> authorize
+                .requestMatchers(HttpMethod.GET, "/api/health").permitAll()
+                .requestMatchers(HttpMethod.POST, "/api/auth/login").permitAll()
                 .requestMatchers(
-                    HttpMethod.GET,
-                    "/api/health"
-                ).permitAll()
-                .requestMatchers(
-                    HttpMethod.POST,
-                    "/api/auth/login"
-                ).permitAll()
-                .requestMatchers(
-                    HttpMethod.POST,
-                    "/api/auth/verify-approval"
+                    HttpMethod.POST, "/api/auth/verify-approval"
                 ).hasRole("ADMIN")
                 .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                .requestMatchers("/api/database/benchmarks/**").hasRole("ADMIN")
                 .anyRequest().authenticated()
             )
             .addFilterBefore(

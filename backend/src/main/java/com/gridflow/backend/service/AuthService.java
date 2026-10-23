@@ -1,9 +1,11 @@
+
 package com.gridflow.backend.service;
 
 import com.gridflow.backend.config.JwtAuthenticationFilter.GridFlowPrincipal;
 import com.gridflow.backend.dto.LoginRequest;
 import com.gridflow.backend.dto.VerifyApprovalRequest;
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.JwtException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -56,8 +58,10 @@ public class AuthService {
         }
 
         String passwordHash = (String) user.get("password_hash");
-        String actualRole = ((String) user.get("role")).toUpperCase(Locale.ROOT);
-        String accountStatus = ((String) user.get("account_status")).toUpperCase(Locale.ROOT);
+        String actualRole =
+                ((String) user.get("role")).toUpperCase(Locale.ROOT);
+        String accountStatus =
+                ((String) user.get("account_status")).toUpperCase(Locale.ROOT);
 
         if (!passwordEncoder.matches(request.password(), passwordHash)) {
             throw new InvalidCredentialsException();
@@ -73,7 +77,8 @@ public class AuthService {
 
         long userId = ((Number) user.get("user_id")).longValue();
         String username = (String) user.get("username");
-        String accessToken = jwtService.generateAccessToken(userId, username, actualRole);
+        String accessToken =
+                jwtService.generateAccessToken(userId, username, actualRole);
 
         return Map.of(
                 "accessToken", accessToken,
@@ -93,25 +98,23 @@ public class AuthService {
                 || !authentication.getAuthorities().stream()
                         .anyMatch(a -> "ROLE_ADMIN".equals(a.getAuthority()))) {
             throw new AccessDeniedException(
-                    "Administrator access is required."
-            );
+                    "Administrator access is required.");
         }
 
-        if (!(authentication.getPrincipal() instanceof GridFlowPrincipal principal)
+        if (!(authentication.getPrincipal()
+                instanceof GridFlowPrincipal principal)
                 || principal.userId() == null
                 || principal.userId() <= 0
                 || !"ADMIN".equals(principal.role())) {
             throw new AccessDeniedException(
-                    "A valid administrator identity is required."
-            );
+                    "A valid administrator identity is required.");
         }
 
         if (request == null
                 || request.approvalPassword() == null
                 || request.approvalPassword().isBlank()) {
             throw new IllegalArgumentException(
-                    "Approval password is required."
-            );
+                    "Approval password is required.");
         }
 
         if (approvalPasswordHash == null
@@ -125,13 +128,70 @@ public class AuthService {
         return jwtService.generateApprovalToken(principal.userId());
     }
 
-    public static class InvalidCredentialsException extends RuntimeException {
+    /**
+     * Requires a valid approval token issued to the currently authenticated
+     * administrator and confirms that the administrator remains active.
+     */
+    public void validateBenchmarkApprovalToken(String token) {
+        Authentication authentication =
+                SecurityContextHolder.getContext().getAuthentication();
+
+        if (token == null || token.isBlank()
+                || authentication == null
+                || !authentication.isAuthenticated()
+                || !(authentication.getPrincipal()
+                        instanceof GridFlowPrincipal principal)
+                || principal.userId() == null
+                || principal.userId() <= 0
+                || !"ADMIN".equals(principal.role())
+                || authentication.getAuthorities().stream()
+                        .noneMatch(a -> "ROLE_ADMIN".equals(a.getAuthority()))) {
+            throw new AccessDeniedException(
+                    "Administrator approval is required.");
+        }
+
+        Claims claims;
+        try {
+            claims = jwtService.validateApprovalToken(token);
+        } catch (JwtException | IllegalArgumentException ex) {
+            throw new AccessDeniedException(
+                    "Invalid or expired approval token.");
+        }
+
+        Object tokenUserId = claims.get("userId");
+        if (!(tokenUserId instanceof Number id)
+                || id.longValue() != principal.userId()) {
+            throw new AccessDeniedException(
+                    "Approval token does not match the current administrator.");
+        }
+
+        try {
+            Map<String, Object> user = jdbcTemplate.queryForMap("""
+                    SELECT role, account_status
+                    FROM app_user
+                    WHERE user_id = ?
+                    """, principal.userId());
+
+            if (!"ADMIN".equals(user.get("role"))
+                    || !"ACTIVE".equals(user.get("account_status"))) {
+                throw new AccessDeniedException(
+                        "Administrator account is not active.");
+            }
+        } catch (EmptyResultDataAccessException ex) {
+            throw new AccessDeniedException(
+                    "Administrator account was not found.");
+        }
+    }
+
+    public static class InvalidCredentialsException
+            extends RuntimeException {
         public InvalidCredentialsException() {
             super("Invalid username, password, or role.");
         }
     }
 
-    public static class AccountNotActiveException extends RuntimeException {
+    public static class AccountNotActiveException
+            extends RuntimeException {
         public AccountNotActiveException() {
             super("This account is not active.");
         }
