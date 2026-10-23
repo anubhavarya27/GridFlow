@@ -11,12 +11,10 @@ services:
       - "127.0.0.1:5433:5432"
     volumes:
       - gridflow_timescale_data:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U gridflow -d gridflow"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
+      - ./database/postgres/001_schema.sql:/docker-entrypoint-initdb.d/001_schema.sql:ro
+      - ./database/postgres/002_auth.sql:/docker-entrypoint-initdb.d/002_auth.sql:ro
+      - ./database/postgres/003_timescale_hypertable.sql:/docker-entrypoint-initdb.d/003_timescale_hypertable.sql:ro
+      - ./database/postgres/004_sample_data.sql:/docker-entrypoint-initdb.d/004_sample_data.sql:ro
 
 volumes:
   gridflow_timescale_data:
-    name: gridflow_timescale_data
