@@ -1,6 +1,63 @@
+# ---------------------------------------------------------------
+# GridPulse root .gitignore
+# frontend/ (Node/Vite), backend/ (Java/Maven), database/ (SQL/Python)
+# ---------------------------------------------------------------
+
+# Secrets and local configuration — NEVER commit these
 .env
 .env.*
 !.env.example
-**/target/
-**/.mvn/wrapper/maven-wrapper.jar
-backend-temp/
+*.pem
+*.key
+*.p12
+*.jks
+credentials*.json
+secrets/
+
+# Node.js / Vite
+node_modules/
+dist/
+dist-ssr/
+*.local
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Java / Maven / Gradle
+target/
+build/
+out/
+.gradle/
+*.class
+hs_err_pid*.log
+.mvn/wrapper/maven-wrapper.jar
+
+# Database dumps and generated datasets
+*.dump
+*.backup
+*.sql.gz
+*.bak
+database/generated/
+database/**/*.csv
+!database/**/fixtures/*.csv
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Logs
+logs/
+*.log
+
+# IDE / OS
+.idea/
+*.iml
+.vscode/*
+!.vscode/extensions.json
+.DS_Store
+Thumbs.db
+*.swp
+*.suo
